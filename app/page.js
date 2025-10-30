@@ -1,6 +1,13 @@
+"use client";
 import Image from "next/image";
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
+  const router = useRouter();
+  const handleClick = () => {
+    router.push('/belajar');
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <main className="container mx-auto px-4 py-16">
@@ -27,7 +34,7 @@ export default function Home() {
             />
           </div>
 
-          <button className="mt-12 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-8 py-3 rounded-lg transition duration-200 shadow-lg hover:shadow-xl">
+          <button onClick={() => handleClick()} className="mt-12 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-8 py-3 rounded-lg transition duration-200 shadow-lg hover:shadow-xl">
             Mulai Sekarang
           </button>
         </div>
