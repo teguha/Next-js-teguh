@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useEffect } from "react";
 import Image from "next/image";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, UserSearch } from "lucide-react";
 import { ChevronLeft } from "lucide-react";
 import { useRef } from "react";
 
@@ -13,6 +13,7 @@ export default function CardComponent({ data, onUpdateCart, delQty, dataImage })
   const [open, setOpen] = useState(false);
   const [openImage, setOpenImage] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [lastUpdateQty , setLastUpdateQty] = useState(null);
 
   const scrollRef = useRef(null);
 
@@ -23,10 +24,15 @@ export default function CardComponent({ data, onUpdateCart, delQty, dataImage })
         return prev;
       }else{
         const updatedQty = { ...prev, [rate.id]: newQty };
+        setLastUpdateQty({rate, newQty});
         return updatedQty;
       }
     });
+  };
 
+  useEffect(() => {
+    if(!lastUpdateQty) return;
+    const {rate, newQty} = lastUpdateQty;
     onUpdateCart(
       {
         id: data.id,
@@ -34,39 +40,24 @@ export default function CardComponent({ data, onUpdateCart, delQty, dataImage })
         rateId: rate.id,
         rateName: rate.name,
         price: rate.price,
-        qty: qty,
+        qty: newQty,
       },
       "plus"
     );
-  };
+  }, [lastUpdateQty]);
 
   const handleMinus = (rate) => {
     setQty((prev) => {
       const currentQty = prev[rate.id] || 0;
       const newQty = Math.max(currentQty - 1, 0);
       const updatedQty = { ...prev, [rate.id]: newQty };
-
-      // console.log(updatedQty);
+      setLastUpdateQty({rate, newQty});
       return updatedQty;
     });
-
-    if(qty > 0){
-      onUpdateCart(
-          {
-            id: data.id,
-            name: data.name,
-            rateId: rate.id,
-            rateName: rate.name,
-            price: rate.price,
-            qty: qty,
-          },
-          "minus"
-        );
-    }
   };
 
   useEffect(() => {
-    if(delQty && delQty.id === data.id ){
+    if(delQty && delQty.id === data.id){
       setQty((prev) => ({
         ...prev, 
         [delQty.rateId] : 0,
@@ -87,10 +78,8 @@ export default function CardComponent({ data, onUpdateCart, delQty, dataImage })
   }
 
 
-
-
   return (
-    <div className="relative w-full h-full border border-gray-300 rounded-xl shadow-lg">
+    <div className="relative mt-42 md:mt-0 w-full h-full border border-gray-300 rounded-xl shadow-lg">
       <Image
         src="/img/spa.jpg"
         alt={data.name}
@@ -111,7 +100,7 @@ export default function CardComponent({ data, onUpdateCart, delQty, dataImage })
       </div>
 
 
-      <button key={data.id} onClick={() => setOpen(!open)} className="text-[14px] text-blue-500 hover:text-blue-800 font-normal tracking-normal mt-2 text-left mx-2">
+      <button key={data.id} onClick={() => setOpen(!open)} className="text-[8px] md:text-[14px] text-blue-500 hover:text-blue-800 font-normal tracking-normal mt-2 text-left mx-2">
         Detail
       </button>
 
@@ -122,13 +111,13 @@ export default function CardComponent({ data, onUpdateCart, delQty, dataImage })
             className="w-[32vh] border border-gray-300 rounded-xl px-2 py-1 flex flex-row justify-between items-center"
           >
 
-            <p className="w-full text-[14px]">{item.name}</p>
+            <p className="w-full text-[8px] md:text-[14px]">{item.name}</p>
               
           {
             (qty[item.id] || 0) <= 0 ? 
             (
               <button
-                className="w-full bg-black text-white mx-2 rounded-xl"
+                className="w-[50%] md:w-full bg-black text-white mx-2 rounded-xl"
                 onClick={() => handlePlus(item)}
               >
                 Select
@@ -176,7 +165,7 @@ export default function CardComponent({ data, onUpdateCart, delQty, dataImage })
               <p className="text-[15px] text-gray-800 font-semibold">{data.name}</p>
               {
                 data.rate.map((item) => (
-                  <div className="w-full flex flex-row justify-start items-center gap-2">
+                  <div key={item.id} className="w-full flex flex-row justify-start items-center gap-2">
 
                    
                       <p className="text-[12px] text-gray-500">{item.name}</p>

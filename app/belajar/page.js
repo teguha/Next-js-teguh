@@ -117,12 +117,9 @@ const dataImage = [
 
 export default function Page(){
     const [cart, setCart] = useState([]);
-    
-    // if (!Array.isArray(cart)) {
-    //     return <div className="text-red-500">Error: Cart data invalid</div>;
-    // }
-
-    const [delQty, setDeleteQty] = useState(null);
+    const [delQty, setDeleteQty] = useState({
+       
+    });
 
     // const [filter, setFilter] = useState([]);
     const [date,  setDate] = useState("");
@@ -135,40 +132,37 @@ export default function Page(){
     };
 
     const handleUpdateCart = (item) => {
-        setCart((prev) => {
-
-            if(item.qty == 0){
-                return prev.filter((p) => !(p.id === item.id && p.rateId === item.rateId));
-            }
-
-            const existing = prev.find((p) => p.id === item.id && p.rateId === item.rateId);
-            
-            if (existing) {
-
-                // if(item.qty <= 0){
-                //     return prev.filter((p) => !(p.id === item.id && p.rateId === item.rateId));
+        if(item){
+            setCart((prev) => {
+    
+                if(item.qty == 0){
+                    return prev.filter((p) => !(p.id === item.id && p.rateId === item.rateId));
+                }
+    
+                const existing = prev.find((p) => p.id === item.id && p.rateId === item.rateId);
+                
+                if (existing) {
+    
+                    return prev.map((p) =>
+                        p.id === item.id && p.rateId === item.rateId ? { ...p, qty: item.qty } : p
+                    );
                     
-                // }else{
-                return prev.map((p) =>
-                    p.id === item.id && p.rateId === item.rateId ? { ...p, qty: item.qty } : p
-                );
-                // }
-
-            } else {
-                return [...prev, { ...item }];
-            }
-        });
+                } else {
+                    return [...prev, { ...item }];
+                }
+            });
+        }
     };
 
     const handleDeleteCart = (itemId , itemRateId) => {
         setCart((prev) => prev.filter((p) => !(p.id === itemId && p.rateId === itemRateId)));
-        setDeleteQty (
-            {
-                id : itemId,
-                rateId : itemRateId,
-                ts : Date.now(),
-            }
-        );
+        setTimeout(() => {
+            setDeleteQty({
+            id: itemId,
+            rateId: itemRateId,
+            ts: Date.now(),
+            });
+        }, 0);
     };
 
     const filterPackage = dataPackage.filter((item) => {
@@ -193,26 +187,12 @@ export default function Page(){
 
     const visiblePackages = filterPackage.slice(0, visibleCard);
 
-    // console.log('Cart data:', cart);
-    // console.log('Cart item:', cart[0]);
-
-    // 👇 TAMBAHKAN VALIDASI INI
-    // if (!Array.isArray(cart)) {
-    //     console.error('Cart is not an array:', cart);
-    //     return <div>Error: Invalid cart data</div>;
-    // }
-
-    // console.log('Cart before render:', cart);
-    // console.log('Cart is array?', Array.isArray(cart));
-    // cart.forEach((item, i) => {
-    //     console.log(`Cart item ${i}:`, item);
-    // });
     return(
         <div>
             <FilterComponent date={date} promo={promo} onUpdateFilter={handleFilter}  />
-            <div className="relative grid grid-cols-[70%_30%] gap-2 container mx-auto px-10 mt-5">
+            <div className="relative grid md:grid-cols-[70%_30%] gap-2 container mx-auto px-10 mt-5">
 
-                <div className="relative w-full max-w-7xl h-[30vh] grid grid-cols-3 gap-4">
+                <div className="relative w-full max-w-7xl h-[30vh] grid grid-cols-2 md:grid-cols-3 gap-4">
                     
                     {/* card component */}
                     {
@@ -236,6 +216,7 @@ export default function Page(){
 
 
                 {/* cart component */}
+                {/*  handle delete handleDeleteCart */}
                 <CartComponent cart={cart} setCart={setCart} handleDeleteCart={handleDeleteCart} />
 
             </div>
